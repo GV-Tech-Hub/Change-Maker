@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Maker Widget</title>
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Dark Mode Themed Background */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1b1b1b;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Light Theme */
+        .light-theme {
+            background-color: #ffffff;
+            color: #333333;
+        }
+
+        .light-theme .calculator-widget {
+            background: linear-gradient(145deg, #f0f0f0, #d4d4d4);
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.1), -5px -5px 15px rgba(255, 255, 255, 0.7);
+        }
+
+        /* Main Widget Styling */
+        .calculator-widget {
+            background: linear-gradient(145deg, #2a2a2a, #121212);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.6), -5px -5px 15px rgba(255, 255, 255, 0.1);
+            width: 400px;
+        }
+
+        /* Header Styling */
+        .header h1 {
+            color: #45c1cb;
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            text-align: center;
+            color: #cccccc;
+        }
+
+        /* Currency Section Styling */
+        .currency-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin: 10px 0;
+        }
+
+        .currency {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            padding: 10px;
+            margin: 5px;
+            background: #303030;
+            border-radius: 10px;
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .light-theme .currency {
+            background: #f0f0f0;
+            box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .currency .add,
+        .currency .minus {
+            color: #45c1cb;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            outline: none;
+            transition: transform 0.1s ease, color 0.3s;
+            margin: 5px 0;
+        }
+
+        .currency .add:hover,
+        .currency .minus:hover {
+            color: #1abc9c;
+        }
+
+        .currency .add:active,
+        .currency .minus:active {
+            transform: scale(1.2);
+        }
+
+        .currency .img img {
+            width: 50px;
+            height: auto;
+            margin-bottom: 5px;
+        }
+
+        .currency .label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .currency .count {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            min-height: 1.2rem;
+        }
+
+        /* Results and Actions Styling */
+        .actions, .results {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .total {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .clear-btn, .submit-btn, .theme-toggle-btn, .toggle-audio-btn, .download-btn {
+            padding: 8px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.3s;
+            outline: none;
+            border: none;
+            color: #fff;
+            background: #45c1cb;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+
+        .clear-btn:hover, .submit-btn:hover, .theme-toggle-btn:hover, .toggle-audio-btn:hover, .download-btn:hover {
+            transform: scale(1.05);
+            background-color: #1abc9c;
+        }
+
+        .submit-btn:active, .clear-btn:active, .theme-toggle-btn:active, .toggle-audio-btn:active, .download-btn:active {
+            transform: scale(1);
+        }
+
+        /* Settings */
+        .settings {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .settings label {
+            margin-right: 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 500px) {
+            .calculator-widget {
+                width: 90%;
+                padding: 15px;
+            }
+
+            .currency {
+                width: 70px;
+                padding: 8px;
+            }
+
+            .currency .img img {
+                width: 40px;
+            }
+
+            .total {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="calculator-widget">
+        <!-- Header with Title and Description -->
+        <div class="header">
+            <h1>Change Maker</h1>
+            <p>Select the quantity of each denomination to calculate the total amount.</p>
+        </div>
+
+        <!-- Change Calculator Form -->
+        <form id="changeCalculator" class="form">
+            <!-- Bills Section -->
+            <div class="currency-section bills">
+                <div class="currency" data-value="2000" id="b20">
+                    <button type="button" class="add">+</button>
+                    <div class="img"><img src="https://1877c46453856fba39c5-8ab8013fec391b9ca90bfafe5970d8bc.ssl.cf1.rackcdn.com/calculator/US_20Dollars.jpg" alt="$20 Bill"></div>
+                    <span class="label">$20</span>
+                    <span class="count">0</span>
+                    <button type="button" class="minus">–</button>
+                </div>
+                <div class="currency" data-value="1000" id="b10">
+                    <button type="button" class="add">+</button>
+                    <div class="img"><img src="https://1877c46453856fba39c5-8ab8013fec391b9ca90bfafe5970d8bc.ssl.cf1.rackcdn.com/calculator/US_10Dollars.jpg" alt="$10 Bill"></div>
+                    <span class="label">$10</span>
+                    <span class="count">0</span>
+                    <button type="button" class="minus">–</button>
+                </div>
+                <div class="currency" data-value="500" id="b5">
+                    <button type="button" class="add">+</button>
+                    <div class="img"><img src="https://1877c46453856fba39c5-8ab8013fec391b9ca90bfafe5970d8bc.ssl.cf1.rackcdn.com/calculator/US_5Dollars.jpg" alt="$5 Bill"></div>
+                    <span class="label">$5</span>
+                    <span class="count">0</span>
+                    <button type="button" class="minus">–</button>
+                </div>
+                <div class="currency" data-value="100" id="b1">
+                    <button type="button" class="add">+</button>
+                    <div class="img"><img src="https://1877c46453856fba39c5-8ab8013fec391b9ca90bfafe5970d8bc.ssl.cf1.rackcdn.com/calculator/US_1Dollar.jpg" alt="$1 Bill"></div>
+                    <span class="label">$1</span>
+                    <span class="count">0</span>
+                    <button type="button" class="minus">–</button>
+                </div>
+            </div>
+
+            <!-- Coins Section -->
+            <div class="currency-section coins">
+                <div class="currency" data-value="25" id="c25">
+                    <button type="button" class="add">+</button>
+                    <div class="img"><img src="https://1877c46453856fba39c5-8ab8013fec391b9ca90bfafe5970d8bc.ssl.cf1.rackcdn.com/calculator/US_Quarter.png" alt="25 Cents"></div>
+                    <span class="label">25¢</span>
+                    <span class="count">0</span>
+                    <button type="button" class="minus">–</button>
+                </div>
+                <div class="currency" data-value="10" id="c10">
+                    <button type="button" class="add">+</button>
+                    <div class="img"><img src="https://1877c46453856fba39c5-8ab8013fec391b9ca90bfafe5970d8bc.ssl.cf1.rackcdn.com/calculator/US_Dime.png" alt="10 Cents"></div>
+                    <span class="label">10¢</span>
+                    <span class="count">0</span>
+                    <button type="button" class="minus">–</button>
+                </div>
+                <div class="currency" data-value="5" id="c5">
+                    <button type="button" class="add">+</button>
+                    <div class="img"><img src="https://1877c46453856fba39c5-8ab8013fec391b9ca90bfafe5970d8bc.ssl.cf1.rackcdn.com/calculator/US_Nickel.png" alt="5 Cents"></div>
+                    <span class="label">5¢</span>
+                    <span class="count">0</span>
+                    <button type="button" class="minus">–</button>
+                </div>
+                <div class="currency" data-value="1" id="c1">
+                    <button type="button" class="add">+</button>
+                    <div class="img"><img src="https://1877c46453856fba39c5-8ab8013fec391b9ca90bfafe5970d8bc.ssl.cf1.rackcdn.com/calculator/US_Penny.png" alt="1 Cent"></div>
+                    <span class="label">1¢</span>
+                    <span class="count">0</span>
+                    <button type="button" class="minus">–</button>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions">
+                <button type="button" class="clear-btn">Clear</button>
+                <div class="total" id="total">$0.00</div>
+                <button type="submit" class="submit-btn">Done</button>
+            </div>
+        </form>
+
+        <!-- Settings and Audio Configuration -->
+        <div class="settings">
+            <button type="button" id="themeToggle" class="theme-toggle-btn">Switch to Light Theme</button>
+            <button type="button" id="toggleAudio" class="toggle-audio-btn">Mute Sound</button>
+            <div>
+                <label for="volume">Volume:</label>
+                <input type="range" id="volume" min="0" max="100" value="50">
+            </div>
+            <!-- Download Screenshot Button -->
+            <button type="button" id="downloadScreenshot" class="download-btn">Download Screenshot</button>
+        </div>
+    </div>
+
+    <!-- html2canvas Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        // Initialize Variables
+        const currencyElements = document.querySelectorAll('.currency');
+        const totalDisplay = document.getElementById('total');
+        const clearBtn = document.querySelector('.clear-btn');
+        const changeCalculatorForm = document.getElementById('changeCalculator');
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const toggleAudioBtn = document.getElementById('toggleAudio');
+        const volumeControl = document.getElementById('volume');
+        const downloadBtn = document.getElementById('downloadScreenshot');
+
+        let audioEnabled = true;
+        let clickSound = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3'); // Example sound URL
+        clickSound.volume = volumeControl.value / 100;
+
+        // Function to Update Total
+        function updateTotal() {
+            let totalCents = 0;
+            currencyElements.forEach(currency => {
+                const count = parseInt(currency.querySelector('.count').innerText) || 0;
+                const value = parseInt(currency.getAttribute('data-value'));
+                totalCents += count * value;
+            });
+            const dollars = (totalCents / 100).toFixed(2);
+            totalDisplay.innerText = `$${dollars}`;
+        }
+
+        // Function to Play Click Sound
+        function playClickSound() {
+            if (audioEnabled) {
+                clickSound.currentTime = 0;
+                clickSound.play();
+            }
+        }
+
+        // Event Listeners for Add Buttons
+        document.querySelectorAll('.add').forEach(button => {
+            button.addEventListener('click', () => {
+                const countEl = button.parentElement.querySelector('.count');
+                countEl.innerText = parseInt(countEl.innerText) + 1;
+                updateTotal();
+                playClickSound();
+            });
+        });
+
+        // Event Listeners for Minus Buttons
+        document.querySelectorAll('.minus').forEach(button => {
+            button.addEventListener('click', () => {
+                const countEl = button.parentElement.querySelector('.count');
+                const currentCount = parseInt(countEl.innerText) || 0;
+                if (currentCount > 0) {
+                    countEl.innerText = currentCount - 1;
+                    updateTotal();
+                    playClickSound();
+                }
+            });
+        });
+
+        // Clear Button Functionality
+        clearBtn.addEventListener('click', () => {
+            currencyElements.forEach(currency => {
+                currency.querySelector('.count').innerText = '0';
+            });
+            updateTotal();
+            playClickSound();
+        });
+
+        // Form Submit Functionality
+        changeCalculatorForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert(`Total Amount: ${totalDisplay.innerText}`);
+        });
+
+        // Theme Toggle Functionality
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            themeToggleBtn.innerText = isLight ? 'Switch to Dark Theme' : 'Switch to Light Theme';
+        });
+
+        // Audio Toggle Functionality
+        toggleAudioBtn.addEventListener('click', () => {
+            audioEnabled = !audioEnabled;
+            toggleAudioBtn.innerText = audioEnabled ? 'Mute Sound' : 'Unmute Sound';
+        });
+
+        // Volume Control Functionality
+        volumeControl.addEventListener('input', (e) => {
+            clickSound.volume = e.target.value / 100;
+        });
+
+        // Download Screenshot Functionality
+        downloadBtn.addEventListener('click', () => {
+            html2canvas(document.querySelector('.calculator-widget')).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'change-maker-screenshot.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error('Failed to capture screenshot:', err);
+            });
+        });
+
+        // Initialize Total
+        updateTotal();
+    </script>
+</body>
+</html>
