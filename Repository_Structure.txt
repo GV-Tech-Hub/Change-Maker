@@ -1,0 +1,15 @@
+cashcount/
+├── README.md
+├── README.html
+├── index.html
+├── assets/
+│   ├── images/
+│   │   └── currency/
+│   ├── sounds/
+│   │   └── effects/
+│   └── css/
+│       └── styles.css
+├── js/
+│   └── main.js
+└── docs/
+    └── screenshots/
